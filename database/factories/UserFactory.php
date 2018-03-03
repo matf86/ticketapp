@@ -17,9 +17,10 @@ $factory->define(App\User::class, function (Faker $faker) {
     static $password;
 
     return [
-        'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,
         'password' => $password ?: $password = bcrypt('secret'),
         'remember_token' => str_random(10),
+        'stripe_account_id' => 'test_acct',
+        'stripe_access_token' => 'test_token'
     ];
 });

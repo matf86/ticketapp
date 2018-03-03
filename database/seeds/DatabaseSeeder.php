@@ -23,5 +23,12 @@ class DatabaseSeeder extends Seeder
                 'zip' => '17916',
                 'additional_information' => 'Example additional info.'
         ])->addTickets(10);
+
+        factory(App\User::class)->create([
+                'email' => 'mat@example.com',
+                'password' => bcrypt('123456'),
+                'remember_token' => str_random(10),
+        ]);
+
     }
 }

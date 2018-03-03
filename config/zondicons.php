@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'inline' => false,
+    'inline' => true,
     'class' => 'zondicon',
 ];

@@ -16,3 +16,9 @@ use Illuminate\Foundation\Inspiring;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
+
+Artisan::command('invite-promoter {email}', function ($email) {
+
+    \App\Invitation::createFor($email)->send();
+
+})->describe('Send invitation to promoters');

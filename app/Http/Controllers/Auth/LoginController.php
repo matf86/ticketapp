@@ -23,7 +23,7 @@ class LoginController extends Controller
 
         }
 
-        return response()->redirectTo('/backstage/concerts/new');
+        return response()->redirectTo('/backstage/concerts');
     }
 
     public function logout()

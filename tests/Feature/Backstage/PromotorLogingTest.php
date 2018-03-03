@@ -26,7 +26,7 @@ class PromotorLogingTest extends TestCase
 
         $response = $this->post('/login', ['email' => 'user@example.com', 'password' => 'secret']);
 
-        $response->assertRedirect('/backstage/concerts/new');
+        $response->assertRedirect('/backstage/concerts');
         $this->assertAuthenticatedAs($user);
     }
 

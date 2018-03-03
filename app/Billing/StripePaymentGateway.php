@@ -64,7 +64,7 @@ class StripePaymentGateway implements PaymentGatewayInterface
         return collect($newCharges);
     }
 
-    public function charge($amount, $token)
+    public function charge($amount, $token, $account_id)
     {
         try {
             $stripeCharge = \Stripe\Charge::create([
@@ -75,7 +75,8 @@ class StripePaymentGateway implements PaymentGatewayInterface
 
             return new Charge([
                 'amount' => $stripeCharge['amount'],
-                'card_last_four' => $stripeCharge['source']['last4']
+                'card_last_four' => $stripeCharge['source']['last4'],
+                'destination' => $account_id
             ]);
         } catch (InvalidRequest $e) {
             throw new PaymentFailedException();

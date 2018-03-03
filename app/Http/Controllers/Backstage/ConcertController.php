@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Backstage;
 
 use App\Concert;
+use App\Events\ConcertAdded;
+use App\NullFile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\Rule;
 
 class ConcertController extends Controller
 {
@@ -14,7 +18,20 @@ class ConcertController extends Controller
     {
         $concerts = Auth::user()->concerts;
 
-        return view('backstage.concerts.index', ['concerts' => $concerts]);
+        $publishedConcerts = $concerts->filter(function($concert) {
+               return $concert->isPublished();
+
+        });
+
+        $unpublishedConcerts = $concerts->filter(function($concert) {
+            return ! $concert->isPublished();
+
+        });
+
+        return view('backstage.concerts.index', [
+            'publishedConcerts' => $publishedConcerts,
+            'unpublishedConcerts' => $unpublishedConcerts
+        ]);
     }
     
     public function create()
@@ -34,7 +51,8 @@ class ConcertController extends Controller
             'state' => 'required',
             'zip' => 'required',
             'ticket_price' => 'required|numeric|min:5',
-            'ticket_quantity' => 'required|integer|min:1'
+            'ticket_quantity' => 'required|integer|min:1',
+            'poster_image' => ['nullable', 'image', Rule::dimensions()->minWidth(600)->ratio(8.5/11)]
         ]);
 
         $concert = Auth::user()->concerts()->create([
@@ -51,12 +69,13 @@ class ConcertController extends Controller
             'city' => request('city'),
             'state' => request('state'),
             'zip' => request('zip'),
-            'additional_information' => request('additional_information')
+            'additional_information' => request('additional_information'),
+            'poster_image_path' => request('poster_image', new NullFile)->store('poster', 'public')
         ]);
 
-        $concert->publish();
+        ConcertAdded::dispatch($concert);
 
-        return redirect()->route('concerts.show', ['id' => $concert->id]);
+        return redirect()->route('backstage.concerts.index');
     }
 
     public function edit($id)

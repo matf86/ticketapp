@@ -46,6 +46,51 @@ class ConcertTest extends TestCase
 
         $this->assertEquals('25.00', $concert->ticket_price_in_dollars);
     }
+
+    /** @test */
+
+    function concert_knows_total_number_of_sold_tickets()
+    {
+        $concert= factory(Concert::class)->create();
+        $concert->tickets()->saveMany(factory(Ticket::class, 3)->create(['order_id' => 1]));
+        $concert->tickets()->saveMany(factory(Ticket::class, 2)->create(['order_id' => null]));
+
+        $this->assertEquals(3, $concert->ticketsSold());
+    }
+    
+    /** @test */
+    
+    function concert_knows_total_number_of_available_tickets()
+    {
+        $concert = \ConcertFactory::createPublished(['ticket_quantity' => 5]);
+
+        $this->assertEquals(5, $concert->ticketsTotal());
+    }
+
+    /** @test */
+
+    function can_calculate_percentage_of_sold_out_tickets()
+    {
+        $concert= factory(Concert::class)->create();
+        $concert->tickets()->saveMany(factory(Ticket::class, 14)->create(['order_id' => 1]));
+        $concert->tickets()->saveMany(factory(Ticket::class, 9)->create(['order_id' => null]));
+
+        $this->assertEquals(60.9, $concert->percentSoldOut());
+    }
+
+    /** @test */
+
+    function calculating_a_revenue_in_dollars()
+    {
+        $concert= factory(Concert::class)->create();
+        $orderA = factory(Order::class)->create(['amount' => 4150]);
+        $orderB = factory(Order::class)->create(['amount' => 1350]);
+
+        $concert->tickets()->saveMany(factory(Ticket::class, 14)->create(['order_id' => $orderA->id]));
+        $concert->tickets()->saveMany(factory(Ticket::class, 9)->create(['order_id' => $orderB->id]));
+
+        $this->assertEquals(55.00, $concert->revenueInDollars());
+    }
     
     /** @test */
     
@@ -96,10 +141,10 @@ class ConcertTest extends TestCase
     function tickets_remaining_does_not_include_tickets_associated_with_an_order()
     {
         $concert= factory(Concert::class)->create();
-        $concert->tickets()->saveMany(factory(Ticket::class, 30)->create(['order_id' => 1]));
-        $concert->tickets()->saveMany(factory(Ticket::class, 20)->create(['order_id' => null]));
+        $concert->tickets()->saveMany(factory(Ticket::class, 3)->create(['order_id' => 1]));
+        $concert->tickets()->saveMany(factory(Ticket::class, 2)->create(['order_id' => null]));
 
-        $this->assertEquals(20, $concert->ticketsRemaining());
+        $this->assertEquals(2, $concert->ticketsRemaining());
     }
 
     /** @test */
